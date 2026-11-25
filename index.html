@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <!--
+    Bingo Game: browser bingo against a computer opponent (portfolio demo).
+    Sections: Opening screen, Header, Start screen, Game screen, Result dialog, Footer.
+    Cards and the caller's board are filled in by scripts/game.js.
+  -->
+
+  <head>
+    <!-- Basic Meta -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Bingo Game is a classic 75-ball bingo game against a computer opponent, with three difficulty levels, saved stats, and full keyboard play."
+    />
+    <meta name="author" content="NM Dev · Nitzan Mizrachi" />
+    <meta name="theme-color" content="#f8dadc" />
+
+    <title>Bingo Game | Classic 75-Ball Bingo vs. the Computer</title>
+
+    <link rel="icon" href="./assets/icons/favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="https://nitzanm23.github.io/bingo-game/" />
+
+    <!-- Home screen install (Android, iOS) -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+
+    <!-- Social sharing preview (LinkedIn, Slack, WhatsApp, X); these require absolute URLs -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Bingo Game" />
+    <meta
+      property="og:title"
+      content="Bingo Game | Classic 75-Ball Bingo vs. the Computer"
+    />
+    <meta
+      property="og:description"
+      content="Bingo Game is a classic 75-ball bingo game against a computer opponent, with three difficulty levels, saved stats, and full keyboard play."
+    />
+    <meta property="og:url" content="https://nitzanm23.github.io/bingo-game/" />
+    <meta
+      property="og:image"
+      content="https://nitzanm23.github.io/bingo-game/assets/images/og-image.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Bingo Game start screen and a match in progress on desktop and phone"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Opening screen: must run before first paint, so no defer -->
+    <script src="./scripts/page-loader.js"></script>
+
+    <!-- Self-hosted font (vendor/) -->
+    <link
+      rel="preload"
+      href="./vendor/fonts/henny-penny-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="./vendor/fonts/fonts.css" />
+
+    <!-- The game background replaces the opening artwork after 3 s; load it during the intro -->
+    <link
+      rel="preload"
+      href="./assets/images/game-background.webp"
+      as="image"
+      type="image/webp"
+    />
+
+    <!-- Project styles -->
+    <link rel="stylesheet" href="./styles/tokens.css" />
+    <link rel="stylesheet" href="./styles/reset.css" />
+    <link rel="stylesheet" href="./styles/page-loader.css" />
+    <link rel="stylesheet" href="./styles/index.css" />
+
+    <!-- Project scripts (ES modules are deferred automatically) -->
+    <script type="module" src="./scripts/index.js"></script>
+  </head>
+
+  <body>
+    <!-- ========== OPENING SCREEN ========== -->
+    <div class="page-loader" aria-hidden="true">
+      <img
+        src="./assets/logos/logo.svg"
+        class="page-loader__logo u-shadow-white"
+        alt=""
+        width="1190"
+        height="286"
+        draggable="false"
+      />
+    </div>
+
+    <!-- ========== HEADER ========== -->
+    <header class="site-header">
+      <h1 class="site-header__title">
+        <img
+          src="./assets/logos/logo.svg"
+          class="site-header__logo u-shadow-halo"
+          alt="Bingo Game"
+          width="1190"
+          height="286"
+          draggable="false"
+        />
+      </h1>
+    </header>
+
+    <main class="app-root" id="main-content">
+      <!-- ========== START SCREEN ========== -->
+      <section
+        class="setup-screen"
+        id="setup-screen"
+        aria-labelledby="setup-title"
+      >
+        <div class="setup-screen__card">
+          <h2 class="setup-screen__title" id="setup-title">How to play</h2>
+          <p class="setup-screen__text">
+            Classic 75-ball bingo against the computer. Complete a row, column,
+            or diagonal first.
+          </p>
+
+          <ol class="rules">
+            <li>
+              Each card has five columns: B, I, N, G, O. The centre square is
+              free.
+            </li>
+            <li>
+              A ball is called every few seconds, depending on the difficulty.
+            </li>
+            <li>Mark called numbers on your card. Earlier calls stay valid.</li>
+            <li>
+              The computer marks its own card 1.7 seconds after each call.
+            </li>
+            <li>
+              A line counts when the round ends. Both in the same round is a
+              draw.
+            </li>
+            <li>Three wrong marks end the game.</li>
+          </ol>
+
+          <fieldset class="difficulty">
+            <legend class="difficulty__legend">Difficulty</legend>
+            <label class="difficulty__option">
+              <input type="radio" name="difficulty" value="easy" />
+              <span>Easy <small>7 s per call</small></span>
+            </label>
+            <label class="difficulty__option">
+              <input type="radio" name="difficulty" value="normal" checked />
+              <span>Normal <small>5 s per call</small></span>
+            </label>
+            <label class="difficulty__option">
+              <input type="radio" name="difficulty" value="hard" />
+              <span>Hard <small>3.5 s per call</small></span>
+            </label>
+          </fieldset>
+
+          <button
+            class="button button--primary setup-screen__start"
+            id="start-button"
+            type="button"
+          >
+            Start Game
+          </button>
+          <noscript>
+            <p class="setup-screen__noscript">
+              Turn on JavaScript to play Bingo Game.
+            </p>
+          </noscript>
+
+          <p class="setup-screen__stats" id="stats-summary">
+            No games played yet.
+          </p>
+        </div>
+      </section>
+
+      <!-- ========== GAME SCREEN ========== -->
+      <section
+        class="game-screen"
+        id="game-screen"
+        aria-labelledby="game-title"
+        hidden
+      >
+        <h2 class="sr-only" id="game-title">Bingo match</h2>
+
+        <div class="game-screen__main">
+          <!-- Current call -->
+          <div class="call-display">
+            <div class="call-ball" id="call-ball" aria-hidden="true">
+              <span class="call-ball__letter" id="call-letter">B</span>
+              <span class="call-ball__number" id="call-number">–</span>
+            </div>
+            <div class="call-display__info">
+              <p class="call-display__label">
+                Next call in <b id="countdown">5.0</b> s
+              </p>
+              <progress
+                class="call-display__timer"
+                id="round-timer"
+                max="5000"
+                value="5000"
+                aria-label="Time left in this round"
+              ></progress>
+              <p class="call-display__count">
+                Ball <b id="call-count">0/75</b>
+              </p>
+            </div>
+          </div>
+
+          <!-- Player card -->
+          <div class="card-panel">
+            <h3 class="card-panel__title">
+              Your card
+              <span class="card-panel__progress"
+                >Closest line <b id="player-progress">0/5</b></span
+              >
+            </h3>
+            <table
+              class="bingo-card"
+              id="player-card"
+              aria-label="Your bingo card"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">B</th>
+                  <th scope="col">I</th>
+                  <th scope="col">N</th>
+                  <th scope="col">G</th>
+                  <th scope="col">O</th>
+                </tr>
+              </thead>
+              <tbody id="player-card-body"></tbody>
+            </table>
+            <p class="card-panel__hint">
+              Tip: use the arrow keys to move between squares.
+            </p>
+          </div>
+
+          <p
+            class="game-message"
+            id="game-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <div class="game-controls">
+            <button
+              class="button game-controls__pause"
+              id="pause-button"
+              type="button"
+              aria-pressed="false"
+            >
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use id="pause-icon" href="./assets/icons/icons.svg#pause" />
+              </svg>
+              <span id="pause-label">Pause</span>
+            </button>
+            <button
+              class="toggle-button"
+              id="music-button"
+              type="button"
+              aria-pressed="true"
+            >
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use href="./assets/icons/icons.svg#music" />
+              </svg>
+              Music
+            </button>
+            <button
+              class="toggle-button"
+              id="effects-button"
+              type="button"
+              aria-pressed="true"
+            >
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use
+                  id="effects-icon"
+                  href="./assets/icons/icons.svg#volume-high"
+                />
+              </svg>
+              Sounds
+            </button>
+            <button class="toggle-button" id="quit-button" type="button">
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use href="./assets/icons/icons.svg#house" />
+              </svg>
+              Menu
+            </button>
+          </div>
+        </div>
+
+        <aside class="info-panel" aria-labelledby="opponent-title">
+          <h2 class="info-panel__title" id="opponent-title">
+            Computer
+            <span class="card-panel__progress"
+              >Closest line <b id="computer-progress">0/5</b></span
+            >
+          </h2>
+          <table
+            class="bingo-card bingo-card--small"
+            aria-label="Computer's bingo card"
+          >
+            <thead>
+              <tr>
+                <th scope="col">B</th>
+                <th scope="col">I</th>
+                <th scope="col">N</th>
+                <th scope="col">G</th>
+                <th scope="col">O</th>
+              </tr>
+            </thead>
+            <tbody id="computer-card-body"></tbody>
+          </table>
+
+          <p class="info-panel__lives">
+            Lives
+            <span
+              class="lives"
+              id="lives"
+              role="img"
+              aria-label="3 of 3 lives left"
+              >♥♥♥</span
+            >
+          </p>
+
+          <h3 class="info-panel__subtitle">Called balls</h3>
+          <p class="sr-only" id="recent-calls" aria-live="off"></p>
+          <!-- Visual caller's board; screen readers get the latest calls above instead -->
+          <table class="called-board" aria-hidden="true">
+            <tbody id="called-board-body"></tbody>
+          </table>
+        </aside>
+      </section>
+
+      <!-- ========== RESULT DIALOG ========== -->
+      <dialog
+        class="result-dialog"
+        id="result-dialog"
+        aria-labelledby="result-title"
+      >
+        <div
+          class="result-art"
+          id="result-art"
+          data-tone="win"
+          aria-hidden="true"
+        >
+          <span class="result-art__ball" data-letter="B">B</span>
+          <span class="result-art__ball" data-letter="I">I</span>
+          <span class="result-art__ball" data-letter="N">N</span>
+          <span class="result-art__ball" data-letter="G">G</span>
+          <span class="result-art__ball" data-letter="O">O</span>
+        </div>
+        <h2 class="result-dialog__title" id="result-title">Game over</h2>
+        <p class="result-dialog__details" id="result-details"></p>
+        <div class="result-dialog__actions">
+          <button
+            class="button button--primary"
+            id="play-again-button"
+            type="button"
+          >
+            <svg class="icon" aria-hidden="true" focusable="false">
+              <use href="./assets/icons/icons.svg#arrow-rotate-left" />
+            </svg>
+            Play again
+          </button>
+          <button class="button" id="menu-button" type="button">
+            <svg class="icon" aria-hidden="true" focusable="false">
+              <use href="./assets/icons/icons.svg#house" />
+            </svg>
+            Back to menu
+          </button>
+        </div>
+      </dialog>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <!-- The year is updated by scripts/index.js -->
+    <footer class="footer">
+      <p class="footer__disclaimer">Browser game · Portfolio demonstration</p>
+      <p class="footer__copyright">
+        &copy; <span id="footer-year">2026</span> Bingo Game. Built by
+        <a href="https://nm-dev.com" target="_blank" rel="noopener noreferrer"
+          ><svg class="icon" aria-hidden="true" focusable="false">
+            <use href="./assets/icons/icons.svg#code" /></svg
+          >&nbsp;NM Dev.</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

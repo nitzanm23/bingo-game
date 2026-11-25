@@ -1,0 +1,22 @@
+# Operating system files
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# Local editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local-only files
+.env
+.env.*
+*.log
+*.tmp
+*.bak
+
+# Dependencies (none are needed today; this keeps any future install out of Git)
+node_modules/

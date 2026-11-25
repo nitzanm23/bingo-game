@@ -1,0 +1,108 @@
+/**
+ * Bingo Game: opening screen.
+ *
+ * scripts/page-loader.js adds `.is-loading` to <html> before first paint, then swaps it for
+ * `.is-loaded`. Every rule here depends on one of those classes, so with JavaScript disabled
+ * the loader never appears and the start screen is visible immediately.
+ */
+
+/* ========== BACKGROUNDS ========== */
+/* The illustrated opening artwork shows behind the logo; the game background replaces it after. */
+body {
+  background: url("../assets/images/game-background.webp") center / cover fixed
+    no-repeat;
+}
+
+html.is-loading body {
+  background-image: url("../assets/images/opening-background.webp");
+}
+
+/* ========== LOADER ========== */
+.page-loader {
+  display: none;
+}
+
+html.is-loading .page-loader,
+html.is-loaded .page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity var(--transition-base),
+    visibility var(--transition-base);
+}
+
+html.is-loading .page-loader {
+  animation: loader-failsafe 3.5s step-end forwards;
+}
+
+html.is-loaded .page-loader {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.page-loader__logo {
+  width: clamp(240px, 60vw, 560px);
+  height: auto;
+  animation: slide-up var(--transition-slow);
+}
+
+/* ========== HIDDEN CONTENT ========== */
+html.is-loading .site-header,
+html.is-loading .app-root,
+html.is-loading .footer {
+  visibility: hidden;
+  animation: content-failsafe 3.5s step-end forwards;
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Failsafes: if a script error stops page-loader.js from removing `.is-loading`,
+ * these keyframes still hide the loader and reveal the game after 3.5 seconds.
+ */
+@keyframes loader-failsafe {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@keyframes content-failsafe {
+  to {
+    visibility: visible;
+  }
+}
+
+/* ========== REDUCED MOTION ========== */
+@media (prefers-reduced-motion: reduce) {
+  .page-loader__logo {
+    animation: none;
+  }
+
+  /*
+   * reset.css shortens every animation to 0.01ms for reduced motion, which would fire
+   * the failsafes instantly. Restore their timing; they are timers, not motion.
+   */
+  html.is-loading .page-loader,
+  html.is-loading .site-header,
+  html.is-loading .app-root,
+  html.is-loading .footer {
+    animation-duration: 3.5s !important;
+  }
+}

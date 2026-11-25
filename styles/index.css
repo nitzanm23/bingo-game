@@ -1,0 +1,848 @@
+/**
+ * Bingo Game: layout and components.
+ *
+ * Mobile first: one column with the player's card on top. From 900px the computer's card and the
+ * caller's board move to a side panel. Cards keep the original pastel gradients and hand-drawn
+ * X marks; the call ball and caller's board use the classic B-I-N-G-O column colors.
+ */
+
+/* ========== UTILITIES ========== */
+.u-shadow-halo {
+  filter: var(--drop-shadow-halo);
+}
+
+.u-shadow-white {
+  filter: var(--drop-shadow-white);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  vertical-align: -0.125em;
+}
+
+/* ========== GLOBAL ========== */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  line-height: 1.45;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.15;
+}
+
+.app-root {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ========== HEADER ========== */
+.site-header {
+  padding: clamp(6px, 1vw, 12px);
+}
+
+.site-header__title {
+  margin: 0;
+  line-height: 0;
+}
+
+.site-header__logo {
+  width: auto;
+  height: clamp(44px, 6vw, 72px);
+  margin-inline: auto;
+}
+
+/* ========== BUTTONS ========== */
+/* Black button with the original rainbow glow on hover. */
+.button {
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-invert);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--gradient-glow-button);
+  background-size: 400%;
+  filter: blur(5px);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  animation: glowing 20s linear infinite;
+}
+
+.button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--color-primary);
+}
+
+.button:focus-visible::before {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .button:hover::before {
+    opacity: 1;
+  }
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button--primary {
+  font-size: clamp(18px, 2vw, 24px);
+}
+
+@keyframes glowing {
+  0%,
+  100% {
+    background-position: 0 0;
+  }
+
+  50% {
+    background-position: 400% 0;
+  }
+}
+
+/* Pill buttons for settings. aria-pressed="false" dims the button and strikes the icon. */
+.toggle-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  background: var(--gradient-brand-transparent);
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .toggle-button:hover {
+    background: var(--gradient-brand);
+    transform: translateY(-2px);
+  }
+}
+
+.toggle-button[aria-pressed="false"] {
+  border-style: dashed;
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+/* ========== START SCREEN ========== */
+.setup-screen {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  padding: var(--space-4);
+}
+
+.setup-screen__card {
+  width: min(100%, 600px);
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+/* The original scale-and-rotate entrance, played once the opening screen has gone. */
+html.is-loaded .setup-screen__card {
+  animation: scale-rotate var(--transition-slow) both;
+}
+
+@keyframes scale-rotate {
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.setup-screen__title {
+  font-size: clamp(34px, 7vw, 56px);
+}
+
+.setup-screen__text {
+  margin: var(--space-3) auto var(--space-4);
+  font-size: clamp(16px, 2vw, 19px);
+}
+
+.rules {
+  padding-left: 1.4rem;
+  list-style: decimal;
+  text-align: left;
+}
+
+.rules li + li {
+  margin-top: var(--space-1);
+}
+
+.difficulty {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 var(--space-4);
+}
+
+.difficulty__legend {
+  width: 100%;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.difficulty__option {
+  position: relative;
+  cursor: pointer;
+}
+
+/* The radio stays in the page for keyboards and screen readers; the label is the visible pill. */
+.difficulty__option input {
+  position: absolute;
+  opacity: 0;
+}
+
+.difficulty__option span {
+  display: grid;
+  min-width: 104px;
+  padding: 8px 14px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-weight: 700;
+  line-height: 1.25;
+  transition: background var(--transition-fast);
+}
+
+.difficulty__option small {
+  font-weight: 400;
+}
+
+.difficulty__option input:checked + span {
+  background: var(--color-primary);
+  color: var(--color-invert);
+}
+
+.difficulty__option input:focus-visible + span {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.setup-screen__stats {
+  margin-top: var(--space-3);
+  color: var(--color-muted);
+  font-size: 15px;
+}
+
+/* Without JavaScript nothing can run, so a short note replaces the Start button. */
+html:not(.has-js) .setup-screen__start,
+html:not(.has-js) .setup-screen__stats,
+html:not(.has-js) .difficulty {
+  display: none;
+}
+
+.setup-screen__noscript {
+  margin-top: var(--space-4);
+  font-weight: 700;
+}
+
+/* ========== GAME SCREEN ========== */
+.game-screen {
+  display: grid;
+  gap: var(--space-6);
+  width: min(100% - 2rem, var(--content-max-width));
+  margin: 0 auto;
+  padding: var(--space-2) 0 var(--space-8);
+}
+
+.game-screen__main {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .game-screen {
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+    align-items: start;
+  }
+}
+
+/* --- Current call --- */
+.call-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-card);
+}
+
+.call-ball {
+  --ball-color: var(--ball-b);
+  --ball-text: var(--color-invert);
+
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  align-content: center;
+  width: clamp(88px, 22vw, 112px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      rgb(255 255 255 / 0.85),
+      transparent 32%
+    ),
+    var(--ball-color);
+  color: var(--ball-text);
+  box-shadow:
+    inset -6px -8px 14px rgb(0 0 0 / 0.25),
+    var(--shadow-card);
+  line-height: 1;
+}
+
+.call-ball[data-letter="I"] {
+  --ball-color: var(--ball-i);
+}
+
+.call-ball[data-letter="N"] {
+  --ball-color: var(--ball-n);
+  --ball-text: var(--color-primary);
+}
+
+.call-ball[data-letter="G"] {
+  --ball-color: var(--ball-g);
+}
+
+.call-ball[data-letter="O"] {
+  --ball-color: var(--ball-o);
+  --ball-text: var(--color-primary);
+}
+
+.call-ball__letter {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 5vw, 26px);
+}
+
+.call-ball__number {
+  font-size: clamp(34px, 9vw, 46px);
+  font-weight: 800;
+}
+
+.call-display__info {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  font-size: 16px;
+}
+
+.call-display__timer {
+  width: min(100%, 260px);
+  height: 10px;
+  accent-color: var(--color-called);
+}
+
+/* --- Cards --- */
+.card-panel {
+  padding: var(--space-4);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-brand-transparent);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: var(--blur-panel);
+}
+
+.card-panel__title,
+.info-panel__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: clamp(22px, 3vw, 28px);
+}
+
+.card-panel__progress {
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+
+.card-panel__hint {
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Touch screens have no arrow keys. */
+@media (pointer: coarse) {
+  .card-panel__hint {
+    display: none;
+  }
+}
+
+.bingo-card {
+  width: min(100%, 520px);
+  margin-inline: auto;
+  border-spacing: 4px;
+  table-layout: fixed;
+}
+
+.bingo-card th {
+  padding-bottom: var(--space-1);
+  font-family: var(--font-display);
+  font-size: clamp(24px, 5vw, 34px);
+  font-weight: var(--font-weight-regular);
+}
+
+.bingo-card__cell {
+  height: clamp(52px, 13vw, 76px);
+  padding: 0;
+}
+
+/* Short desktop windows: keep the whole card and its controls on screen. */
+@media (min-width: 900px) and (max-height: 960px) {
+  .bingo-card__cell {
+    height: clamp(46px, 6.3vh, 62px);
+  }
+}
+
+.bingo-card__square {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-strong);
+  color: var(--color-primary);
+  font-size: clamp(20px, 4.5vw, 30px);
+  font-weight: 700;
+  touch-action: manipulation;
+}
+
+button.bingo-card__square {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  button.bingo-card__square:hover {
+    background: var(--gradient-brand);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+.bingo-card__square.is-marked {
+  background: var(--gradient-brand);
+}
+
+.bingo-card__square.is-free {
+  font-size: clamp(12px, 3vw, 16px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Hand-drawn X over a marked number (not on the free square, which already says so). */
+.bingo-card__square.is-marked:not(.is-free)::before,
+.bingo-card__square.is-marked:not(.is-free)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 62%;
+  height: 7%;
+  min-height: 3px;
+  border-radius: 2px;
+  background: var(--color-mark);
+  box-shadow: 1px 1px 2px var(--color-mark-shadow);
+  transform: translate(-50%, -50%) rotate(var(--mark-angle));
+  animation: mark-pop var(--transition-base);
+}
+
+.bingo-card__square.is-marked::before {
+  --mark-angle: 45deg;
+}
+
+.bingo-card__square.is-marked::after {
+  --mark-angle: -45deg;
+}
+
+@keyframes mark-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0) rotate(var(--mark-angle));
+  }
+
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.3) rotate(var(--mark-angle));
+  }
+}
+
+/* Paused or finished: the card is inert, and looks it. */
+.bingo-card[inert] {
+  opacity: 0.55;
+}
+
+.bingo-card--small {
+  width: 100%;
+  border-spacing: 3px;
+}
+
+.bingo-card--small th {
+  font-size: 20px;
+}
+
+.bingo-card--small .bingo-card__cell {
+  height: 38px;
+}
+
+.bingo-card--small .bingo-card__square {
+  border-width: 1px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+}
+
+.bingo-card--small .bingo-card__square.is-free {
+  font-size: 9px;
+}
+
+/* --- Message and controls --- */
+.game-message {
+  min-height: 3.2em;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-strong);
+  box-shadow: var(--shadow-card);
+  font-size: 17px;
+  text-align: center;
+}
+
+.game-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.game-controls__pause {
+  min-width: 130px;
+}
+
+/* ========== INFO PANEL ========== */
+.info-panel {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-brand-transparent);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: var(--blur-panel);
+}
+
+.info-panel__title {
+  margin-bottom: 0;
+}
+
+.info-panel__lives {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+}
+
+.lives {
+  color: var(--color-life);
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.info-panel__subtitle {
+  font-size: 22px;
+}
+
+/* The caller's board: 75 balls in five lettered rows. */
+.called-board {
+  width: 100%;
+  border-spacing: 2px;
+  table-layout: fixed;
+  font-size: 11px;
+  text-align: center;
+}
+
+.called-board th {
+  width: 1.6em;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: var(--font-weight-regular);
+}
+
+.called-board td {
+  padding: 3px 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.55);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.called-board td.is-called {
+  background: var(--color-called);
+  color: var(--color-invert);
+  font-weight: 700;
+}
+
+/* ========== RESULT DIALOG ========== */
+/* A native <dialog> opened with showModal(): focus trap, Escape, and inert background built in. */
+.result-dialog {
+  width: min(100% - 2rem, 540px);
+  padding: var(--space-6);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.result-dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.result-dialog[open] {
+  animation: scale-rotate var(--transition-base) both;
+}
+
+.result-dialog__title {
+  margin-top: var(--space-4);
+  font-size: clamp(26px, 5vw, 36px);
+}
+
+.result-dialog__details {
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+}
+
+.result-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* Five B-I-N-G-O balls: they bounce for a win, drop and fade for a loss, and sway for a draw. */
+.result-art {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 72px;
+  padding-top: var(--space-2);
+}
+
+.result-art__ball {
+  --ball-color: var(--ball-b);
+  --ball-text: var(--color-invert);
+
+  display: grid;
+  place-items: center;
+  width: clamp(44px, 12vw, 58px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      rgb(255 255 255 / 0.85),
+      transparent 32%
+    ),
+    var(--ball-color);
+  color: var(--ball-text);
+  box-shadow: inset -4px -6px 10px rgb(0 0 0 / 0.25);
+  font-family: var(--font-display);
+  font-size: clamp(20px, 5vw, 26px);
+}
+
+.result-art__ball[data-letter="I"] {
+  --ball-color: var(--ball-i);
+}
+
+.result-art__ball[data-letter="N"] {
+  --ball-color: var(--ball-n);
+  --ball-text: var(--color-primary);
+}
+
+.result-art__ball[data-letter="G"] {
+  --ball-color: var(--ball-g);
+}
+
+.result-art__ball[data-letter="O"] {
+  --ball-color: var(--ball-o);
+  --ball-text: var(--color-primary);
+}
+
+.result-art__ball:nth-child(2) {
+  animation-delay: 0.1s !important;
+}
+
+.result-art__ball:nth-child(3) {
+  animation-delay: 0.2s !important;
+}
+
+.result-art__ball:nth-child(4) {
+  animation-delay: 0.3s !important;
+}
+
+.result-art__ball:nth-child(5) {
+  animation-delay: 0.4s !important;
+}
+
+.result-art[data-tone="win"] .result-art__ball {
+  animation: ball-bounce 0.9s ease-in-out infinite alternate;
+}
+
+.result-art[data-tone="lose"] .result-art__ball {
+  filter: grayscale(1);
+  opacity: 0.6;
+  animation: ball-drop 0.8s ease-in both;
+}
+
+.result-art[data-tone="draw"] .result-art__ball {
+  animation: ball-sway 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes ball-bounce {
+  from {
+    transform: translateY(6px);
+  }
+
+  to {
+    transform: translateY(-14px) rotate(-8deg);
+  }
+}
+
+@keyframes ball-drop {
+  from {
+    opacity: 1;
+    filter: none;
+    transform: translateY(-30px);
+  }
+
+  70% {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes ball-sway {
+  from {
+    transform: rotate(-10deg);
+  }
+
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+/* ========== FOOTER ========== */
+.footer {
+  margin-top: auto;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary);
+  color: var(--color-invert);
+  font-size: 15px;
+  text-align: center;
+}
+
+.footer__disclaimer {
+  margin-bottom: var(--space-1);
+  opacity: 0.8;
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer a:hover {
+  color: var(--color-mark-shadow);
+}
+
+/* ========== RESPONSIVE ========== */
+/* Fixed backgrounds jump and repaint while scrolling on phones. */
+@media (max-width: 767px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  .setup-screen__card,
+  .card-panel,
+  .info-panel,
+  .result-dialog {
+    border-radius: var(--radius-md);
+  }
+}

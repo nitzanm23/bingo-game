@@ -1,0 +1,11 @@
+/**
+ * Self-hosted Henny Penny font from @fontsource/henny-penny 5.3.0 (Latin subset, weight 400).
+ * License: SIL OFL 1.1 (LICENSE-Henny-Penny.txt in this folder).
+ */
+@font-face {
+  font-family: "Henny Penny";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./henny-penny-latin-400-normal.woff2") format("woff2");
+}

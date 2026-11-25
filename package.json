@@ -1,0 +1,13 @@
+{
+  "name": "bingo-game",
+  "private": true,
+  "description": "A static bingo game with a computer opponent and automated regression tests.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
